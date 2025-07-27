@@ -37,7 +37,7 @@ public class LoginController {
     @ResponseBody
     @GetMapping("/redirect")
     public ResponseEntity<String> callback(@RequestParam String token) {
-        return ResponseEntity.ok("Success login with Google. Token: " + token);
+        return ResponseEntity.ok("Token: " + token);
     }
 
 }
