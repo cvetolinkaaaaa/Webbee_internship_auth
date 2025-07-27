@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<div class="container">
+    <h1>Вход</h1>
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Логин:</label>
+            <input type="text" id="username" name="username" required />
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Войти</button>
+    </form>
+
+    <div id="result"></div>
+
+    <div class="separator">ИЛИ</div>
+
+    <a href="http://localhost:8080/oauth2/authorization/google" class="google-btn">Войти через Google</a>
+</div>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+            const signinResponse = await fetch("/auth/signin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!signinResponse.ok) {
+                throw new Error("Неверные учетные данные");
+            }
+
+            const signinData = await signinResponse.json();
+            const token = signinData.token;
+
+            const protectedResponse = await fetch("/success-page", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (!protectedResponse.ok) {
+                throw new Error("Ошибка доступа к защищенной странице");
+            }
+
+            const protectedData = await protectedResponse.text();
+            document.getElementById("result").innerHTML = `<pre>${protectedData}</pre>`;
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+</script>
+</body>
+</html>

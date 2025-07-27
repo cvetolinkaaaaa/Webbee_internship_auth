@@ -102,3 +102,44 @@ databaseChangeLog:
               - column:
                   name: name
                   type: STRING
+
+  - changeSet:
+      id: add-auth-type-column
+      author: webbee-auth
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: auth_type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                  defaultValue: 'LOCAL'
+        - addNotNullConstraint:
+            tableName: users
+            columnName: auth_type
+            columnDataType: VARCHAR(20)
+
+  - changeSet:
+      id: make-password-nullable-for-oauth
+      author: webbee-auth
+      changes:
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: password
+            columnDataType: TEXT
+
+  - changeSet:
+      id: update-existing-users-auth-type
+      author: webbee-auth
+      changes:
+        - sql:
+            sql: UPDATE users SET auth_type = 'LOCAL' WHERE auth_type IS NULL OR auth_type = '';
+
+  - changeSet:
+      id: add-auth-type-constraint
+      author: webbee-auth
+      changes:
+        - sql:
+            sql: ALTER TABLE users ADD CONSTRAINT chk_auth_type CHECK (auth_type IN ('LOCAL', 'GOOGLE'));
