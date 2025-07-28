@@ -20,6 +20,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Обработчик успешной OAuth2 аутентификации.
+ * @author Evseeva Tsvetolina
+ */
 @Component
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -28,6 +32,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    /**
+     * Обрабатывает успешную OAuth2 аутентификацию.
+     */
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,

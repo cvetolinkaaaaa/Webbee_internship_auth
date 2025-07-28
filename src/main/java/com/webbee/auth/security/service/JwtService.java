@@ -122,7 +122,6 @@ public class JwtService {
         }
     }
 
-
     public Long getUserIdFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
         return claims.get("userId", Long.class);
