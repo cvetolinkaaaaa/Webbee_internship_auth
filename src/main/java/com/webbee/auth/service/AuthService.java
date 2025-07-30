@@ -3,6 +3,7 @@ package com.webbee.auth.service;
 import com.webbee.auth.dto.AuthStatusDto;
 import com.webbee.auth.dto.LoginRequest;
 import com.webbee.auth.dto.RegistrationDto;
+import com.webbee.auth.entity.AuthType;
 import com.webbee.auth.entity.Role;
 import com.webbee.auth.entity.User;
 import com.webbee.auth.repository.RoleRepository;
@@ -19,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -69,6 +69,7 @@ public class AuthService {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
+                .authType(AuthType.LOCAL)
                 .roles(roles)
                 .build()
         );
@@ -84,14 +85,13 @@ public class AuthService {
      */
     @Transactional(readOnly = true)
     public AuthStatusDto login(LoginRequest request) {
-        Optional<User> existingUser = userRepository.findByUsername(request.getUsername());
         try {
             Authentication authentication = authenticationProvider.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
 
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            Long userId = existingUser.get().getId();
+            Long userId = userDetails.getId();
             String token = jwtService.generateJwtToken(userDetails, userId);
             return AuthStatusDto.builder()
                     .code(HttpStatus.OK.value())

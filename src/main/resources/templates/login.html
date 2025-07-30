@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign in</title>
+    <style>
+        body {
+            background: #FBFAF6;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-signin {
+            background: #f5d3ee;
+            width: 600px;
+            padding: 50px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            -webkit-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 24px;
+            font-weight: normal;
+        }
+
+        .form-floating {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .form-floating input {
+            width: 100%;
+            padding: 15px 12px 5px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .form-floating input:focus {
+            border-color: #da91c2;
+            box-shadow: 0 0 5px rgba(218, 145, 194, 0.3);
+        }
+
+        .form-floating label {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            transition: all 0.2s;
+            pointer-events: none;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-floating input:focus + label,
+        .form-floating input:not(:placeholder-shown) + label {
+            top: 8px;
+            font-size: 12px;
+            color: #da91c2;
+            transform: translateY(0);
+        }
+
+        .c-button {
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            background: #e8afd7;
+            box-shadow: 0 5px 0 #da91c2;
+            min-width: 150px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: all 0.1s;
+        }
+
+        .c-button:hover {
+            background: #da91c2;
+            box-shadow: none;
+            position: relative;
+            top: 5px;
+            color: white;
+        }
+
+        .separator {
+            margin: 25px 0;
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .form-signin {
+                width: 90%;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<main class="form-signin">
+    <form th:action="@{/auth/signin}" method="post" id="loginForm">
+        <h1>Вход в аккаунт</h1>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+
+        <div class="form-floating">
+            <input type="text" placeholder=" " id="username" name="username" required>
+            <label>Username</label>
+        </div>
+
+        <div class="form-floating">
+            <input type="password" placeholder=" " id="password" name="password" required>
+            <label>Password</label>
+        </div>
+
+        <button class="c-button" type="submit">Войти</button>
+
+        <div class="separator">ИЛИ</div>
+
+        <a th:href="@{/oauth2/authorization/google}" class="c-button">
+            Войти через Google
+        </a>
+    </form>
+</main>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+            const signinResponse = await fetch("/auth/signin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!signinResponse.ok) {
+                throw new Error("Неверные учетные данные");
+            }
+
+            const signinData = await signinResponse.json();
+            const token = signinData.token;
+
+            alert("Ваш токен: " + token);
+
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+</script>
+
+</body>
+</html>

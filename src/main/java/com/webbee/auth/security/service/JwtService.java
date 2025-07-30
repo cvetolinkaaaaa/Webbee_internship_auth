@@ -1,5 +1,7 @@
 package com.webbee.auth.security.service;
 
+import com.webbee.auth.entity.Role;
+import com.webbee.auth.entity.User;
 import com.webbee.auth.security.model.CustomUserDetails;
 import com.webbee.auth.security.model.TokenData;
 import io.jsonwebtoken.Claims;
@@ -56,6 +58,25 @@ public class JwtService {
                 .compact();
     }
 
+    public String generateJwtToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        Date now = new Date();
+        Date expirationDate = new Date(now.getTime() + lifeTime);
+        claims.put("userId", user.getId());
+        claims.put("username", user.getUsername());
+        claims.put("roles", user.getRoles().stream()
+                .map(Role::getName)
+                .map(role -> "ROLE_" + role)
+                .collect(Collectors.toSet()));
+        return Jwts.builder()
+                .claims(claims)
+                .subject(user.getUsername())
+                .issuedAt(now)
+                .expiration(expirationDate)
+                .signWith(getSigningKey())
+                .compact();
+    }
+
     /**
      * Формирует структуру данных, содержащую пользовательскую информацию
      * для включения в JWT токен
@@ -100,7 +121,6 @@ public class JwtService {
             throw new IllegalArgumentException("Invalid JWT token", e);
         }
     }
-
 
     public Long getUserIdFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);

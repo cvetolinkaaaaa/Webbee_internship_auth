@@ -1,6 +1,7 @@
 package com.webbee.auth.config;
 
 import com.webbee.auth.security.filter.JwtFilter;
+import com.webbee.auth.security.handler.OAuth2AuthenticationSuccessHandler;
 import com.webbee.auth.security.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final JwtFilter jwtFilter;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -49,6 +51,10 @@ public class SecurityConfig {
                         sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .loginPage("/loginForm")
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
