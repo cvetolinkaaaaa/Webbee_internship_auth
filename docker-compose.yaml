@@ -12,13 +12,15 @@ services:
       - "5434:5432"
     restart: unless-stopped
 
-  contractor-app:
+  auth-app:
     build: .
     container_name: auth-app
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/auth
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     depends_on:
       - postgres
     ports:
